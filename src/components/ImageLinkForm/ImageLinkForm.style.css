@@ -1,0 +1,17 @@
+.form {
+  background-color:#def;
+  background-image: radial-gradient(closest-side, transparent 98%, rgba(0,0,0,.3) 99%),  radial-gradient(closest-side, transparent 98%, rgba(0,0,0,.3) 99%);
+  background-size:80px 80px;
+  background-position:0 0, 40px 40px;
+  border-radius: 1rem;
+  -webkit-border-radius: 1rem;
+  -moz-border-radius: 1rem;
+  -ms-border-radius: 1rem;
+  -o-border-radius: 1rem;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.detect {
+  margin-left: 1rem;
+}
