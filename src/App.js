@@ -14,11 +14,18 @@ import FaceRecognition from "./components/FaceRecognition/FaceRecognition.compon
 const app = new Clarifai.App({
   apiKey: '3ae07ea523a84fc7a5ed47e3dd6883ca'
 });
+
+
 const App = () => {
 
+  //States --> Start
   const [searchField, setSearchField] = useState('');
-  const [imageURL, setImageURL] = useState('https://samples.clarifai.com/face-det.jpg');
+  const [imageURL, setImageURL] = useState('');
+  const [box, setBox] = useState({});
+  // States --> End
 
+
+  // Initialize Background Particles --> Start
   const particlesInit = useCallback(async (engine) => {
     console.log(engine);
 
@@ -28,27 +35,39 @@ const App = () => {
   const particlesLoaded = useCallback(async (container) => {
     await console.log(container);
   }, []);
+  // Initialize Background Particles --> End
 
-  const onInputChange = (event) => {
-    const searchFieldString = event.target.value;
-    setSearchField(searchFieldString);
+
+  const calculateFaceLocation = (response => {
+    const clarifaiFace = response.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('input_image');
+    const iWidth = Number(image.width);
+    const iHeight = Number(image.height);
+    return ({
+      leftCol: (clarifaiFace.left_col * iWidth),
+      topRow: (clarifaiFace.top_row * iHeight),
+      rightCol: (iWidth - (clarifaiFace.right_col * iWidth)),
+      bottomRow: (iHeight - (clarifaiFace.bottom_row * iHeight))
+    })
+  })
+
+  const displayFaceBox = (box) => {
+    setBox(box);
+    console.log(box);
+  }
+
+  const onInputChange = (event) => {    
+    setSearchField(event.target.value)
+    console.log(searchField);
   }
 
   const onButtonSubmit= () => {
     setImageURL(searchField);
-    console.log('click');
     app.models.predict(Clarifai.FACE_DETECT_MODEL, `${imageURL}`)
-      .then(
-        function (response) {
-          console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
-        },
-        function (err) {
-          console.log(err);
-        }
-      );
+      .then(response => displayFaceBox(calculateFaceLocation(response)))
+      .catch(err => console.log(err));
   }
 
-  // "https://samples.clarifai.com/face-det.jpg"
 
   return (
     <div className="App">
@@ -133,7 +152,7 @@ const App = () => {
         onInputChange={onInputChange} 
         onButtonSubmit={onButtonSubmit} 
       />
-      <FaceRecognition imageURL={imageURL} />
+      <FaceRecognition box={box} imageURL={imageURL} />
     </div>
   );
 };
